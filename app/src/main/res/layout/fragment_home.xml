@@ -110,6 +110,52 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <!-- Monthly Goal Progress Card -->
+            <LinearLayout
+                android:id="@+id/goalCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/card_background"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="MONTHLY SPENDING"
+                    android:textColor="@color/text3"
+                    android:textSize="10sp"
+                    android:letterSpacing="0.08"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:id="@+id/tvGoalProgress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="R 0 of R 5,000"
+                    android:textColor="@color/text1"
+                    android:textSize="20sp"
+                    android:fontFamily="serif"
+                    android:layout_marginBottom="12dp"/>
+
+                <!-- Progress Bar Background -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="8dp"
+                    android:background="@drawable/input_background"/>
+
+                <!-- Progress Bar Fill -->
+                <View
+                    android:id="@+id/progressBarFill"
+                    android:layout_width="0dp"
+                    android:layout_height="8dp"
+                    android:layout_marginTop="-8dp"
+                    android:background="@color/accent"/>
+
+            </LinearLayout>
+
             <!-- Recent Transactions header row -->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -126,6 +172,28 @@
                     android:textColor="@color/text3"
                     android:textSize="10sp"
                     android:letterSpacing="0.08"/>
+
+                <TextView
+                    android:id="@+id/btnFilter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Filter"
+                    android:textColor="@color/accent"
+                    android:textSize="11sp"
+                    android:layout_marginEnd="12dp"
+                    android:clickable="true"
+                    android:focusable="true"/>
+
+                <TextView
+                    android:id="@+id/btnCategoryTotals"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Totals"
+                    android:textColor="@color/accent"
+                    android:textSize="11sp"
+                    android:layout_marginEnd="12dp"
+                    android:clickable="true"
+                    android:focusable="true"/>
 
                 <TextView
                     android:id="@+id/tvTxCount"

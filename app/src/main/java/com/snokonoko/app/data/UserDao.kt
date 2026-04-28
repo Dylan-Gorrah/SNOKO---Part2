@@ -16,4 +16,10 @@ interface UserDao {
 
     @Query("SELECT COUNT(*) FROM users WHERE email = :email")
     suspend fun emailExists(email: String): Int
+
+    @Query("SELECT * FROM users ORDER BY firstName ASC")
+    suspend fun getAllUsers(): List<User>
+
+    @Query("UPDATE users SET firstName = :firstName, surname = :surname WHERE id = :id")
+    suspend fun updateUser(id: Int, firstName: String, surname: String)
 }

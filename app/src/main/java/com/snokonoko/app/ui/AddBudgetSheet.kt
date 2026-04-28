@@ -43,7 +43,9 @@ class AddBudgetSheet : BottomSheetDialogFragment() {
                 return@setOnClickListener
             }
 
-            viewModel.addBudget(Budget(category = cat, limitAmount = limit))
+            val prefs = requireContext().getSharedPreferences("snokonoko_prefs", 0)
+            val userId = prefs.getInt("user_id", -1)
+            viewModel.addBudget(Budget(userId = userId, category = cat, limitAmount = limit))
             dismiss()
         }
     }

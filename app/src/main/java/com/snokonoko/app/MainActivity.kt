@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_home     -> HomeFragment()
                 R.id.nav_reports  -> ReportsFragment()
                 R.id.nav_budget   -> BudgetFragment()
-                R.id.nav_account  -> AccountFragment()
+                R.id.nav_settings -> AccountFragment()
                 else -> HomeFragment()
             }
             loadFragment(fragment)

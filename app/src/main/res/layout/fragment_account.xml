@@ -15,7 +15,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Account"
+            android:text="Settings"
             android:textColor="@color/text1"
             android:textSize="26sp"
             android:fontFamily="serif"
@@ -23,12 +23,15 @@
 
         <!-- User info card -->
         <LinearLayout
+            android:id="@+id/userProfileContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/card_background"
             android:orientation="vertical"
             android:padding="20dp"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:focusable="true">
 
             <TextView
                 android:id="@+id/tvUserName"
@@ -78,6 +81,45 @@
                 android:fontFamily="serif"/>
 
         </LinearLayout>
+
+        <!-- Manage Categories -->
+        <Button
+            android:id="@+id/btnManageCategories"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:background="@drawable/btn_ghost"
+            android:text="Manage Categories"
+            android:textColor="@color/text1"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:stateListAnimator="@null"
+            android:layout_marginTop="8dp"/>
+
+        <!-- Set Monthly Goals -->
+        <Button
+            android:id="@+id/btnSetMonthlyGoals"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:background="@drawable/btn_ghost"
+            android:text="Set Monthly Goals"
+            android:textColor="@color/text1"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:stateListAnimator="@null"
+            android:layout_marginTop="8dp"/>
+
+        <!-- View Registered Users -->
+        <Button
+            android:id="@+id/btnViewUsers"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:background="@drawable/btn_ghost"
+            android:text="View Registered Users"
+            android:textColor="@color/text1"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:stateListAnimator="@null"
+            android:layout_marginTop="8dp"/>
 
         <!-- Log out -->
         <Button

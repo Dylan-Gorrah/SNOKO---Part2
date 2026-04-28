@@ -12,9 +12,10 @@
     <color name="text2">#8C8C8C</color>
     <color name="text3">#474747</color>
 
-    <!-- Brand -->
-    <color name="accent">#D6415A</color>
-    <color name="accent_dim">#1FD6415A</color>
+    <!-- Brand - Medium Violet Red -->
+    <color name="accent">#C71585</color>
+    <color name="accent_dim">#1FC71585</color>
+    <color name="accent_light">#F49AC2</color>
 
     <!-- Semantic -->
     <color name="green">#30D158</color>

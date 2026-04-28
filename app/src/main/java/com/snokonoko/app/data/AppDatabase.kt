@@ -6,8 +6,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [User::class, Transaction::class, Budget::class],
-    version = 1,
+    entities = [User::class, Transaction::class, Budget::class, Category::class, MonthlyGoal::class],
+    version = 6,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -15,6 +15,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun transactionDao(): TransactionDao
     abstract fun budgetDao(): BudgetDao
+    abstract fun categoryDao(): CategoryDao
+    abstract fun monthlyGoalDao(): MonthlyGoalDao
 
     companion object {
         @Volatile
@@ -26,7 +28,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "snokonoko_db"
-                ).build().also { INSTANCE = it }
+                )
+                .fallbackToDestructiveMigrationFrom(5)
+                .build().also { INSTANCE = it }
             }
         }
     }

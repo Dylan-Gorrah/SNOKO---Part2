@@ -1,14 +1,23 @@
 package com.snokonoko.app.ui
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.*
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
+import com.snokonoko.app.data.MonthlyGoal
+import kotlinx.coroutines.launch
 import com.snokonoko.app.databinding.FragmentAccountBinding
 import com.snokonoko.app.viewmodel.MainViewModel
 import java.text.NumberFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.math.abs
 
@@ -30,6 +39,11 @@ class AccountFragment : Fragment() {
         binding.tvUserName.text = activity.userName
         binding.tvUserEmail.text = activity.userEmail
 
+        // Make profile section clickable for editing
+        binding.userProfileContainer.setOnClickListener {
+            showEditProfileDialog(activity.userName ?: "", activity.userEmail ?: "")
+        }
+
         viewModel.transactions.observe(viewLifecycleOwner) { transactions ->
             val list = transactions ?: emptyList()
             val income = list.filter { it.type == "income" }.sumOf { it.amount }
@@ -45,6 +59,21 @@ class AccountFragment : Fragment() {
             )
         }
 
+        binding.btnManageCategories.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(com.snokonoko.app.R.id.fragmentContainer, CategoriesFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        binding.btnSetMonthlyGoals.setOnClickListener {
+            showMonthlyGoalDialog()
+        }
+
+        binding.btnViewUsers.setOnClickListener {
+            showUsersDialog()
+        }
+
         binding.btnLogout.setOnClickListener {
             // Clear session
             requireContext().getSharedPreferences("snokonoko_prefs", 0)
@@ -55,6 +84,168 @@ class AccountFragment : Fragment() {
             }
             startActivity(intent)
         }
+    }
+
+    private fun showMonthlyGoalDialog() {
+        val context = requireContext()
+        val layout = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(50, 30, 50, 30)
+        }
+
+        val etMinGoal = EditText(context).apply {
+            hint = "Minimum goal (R)"
+            inputType = android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+        }
+
+        val etMaxGoal = EditText(context).apply {
+            hint = "Maximum goal (R)"
+            inputType = android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+        }
+
+        layout.addView(etMinGoal)
+        layout.addView(etMaxGoal)
+
+        // Load existing goal
+        val currentMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"))
+        viewModel.loadMonthlyGoal(currentMonth)
+        viewModel.currentMonthGoal.observe(viewLifecycleOwner) { goal ->
+            goal?.let {
+                etMinGoal.setText(it.minGoal.toString())
+                etMaxGoal.setText(it.maxGoal.toString())
+            }
+        }
+
+        AlertDialog.Builder(context)
+            .setTitle("Set Monthly Spending Goals")
+            .setView(layout)
+            .setPositiveButton("Save") { _, _ ->
+                val minStr = etMinGoal.text.toString()
+                val maxStr = etMaxGoal.text.toString()
+                val minGoal = minStr.toDoubleOrNull() ?: 0.0
+                val maxGoal = maxStr.toDoubleOrNull() ?: 0.0
+
+                val prefs = requireContext().getSharedPreferences("snokonoko_prefs", 0)
+                val userId = prefs.getInt("user_id", -1)
+                val goal = MonthlyGoal(
+                    userId = userId,
+                    monthYear = currentMonth,
+                    minGoal = minGoal,
+                    maxGoal = maxGoal
+                )
+                viewModel.setMonthlyGoal(goal)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showUsersDialog() {
+        // Require admin password
+        val etPassword = EditText(requireContext()).apply {
+            hint = "Enter admin password"
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Admin Access Required")
+            .setView(etPassword)
+            .setPositiveButton("Verify") { _, _ ->
+                val password = etPassword.text.toString()
+                if (password == "555") {
+                    // Password correct, show users
+                    lifecycleScope.launch {
+                        val users = viewModel.getAllUsers()
+                        val userList = if (users.isEmpty()) {
+                            "No registered users"
+                        } else {
+                            users.joinToString("\n") { user: com.snokonoko.app.data.User ->
+                                StringBuilder().apply {
+                                    append(user.firstName)
+                                    append(" ")
+                                    append(user.surname)
+                                    append(" (")
+                                    append(user.email)
+                                    append(")")
+                                }.toString()
+                            }
+                        }
+                        AlertDialog.Builder(requireContext())
+                            .setTitle("Registered Users")
+                            .setMessage(userList)
+                            .setPositiveButton("OK", null)
+                            .show()
+                    }
+                } else {
+                    android.widget.Toast.makeText(requireContext(), "Incorrect password", android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showEditProfileDialog(currentName: String, currentEmail: String) {
+        val layout = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(50, 30, 50, 30)
+        }
+
+        val etFirstName = EditText(requireContext()).apply {
+            hint = "First Name"
+            val nameParts = currentName.split(" ")
+            setText(if (nameParts.isNotEmpty()) nameParts[0] else "")
+        }
+
+        val etSurname = EditText(requireContext()).apply {
+            hint = "Surname"
+            val nameParts = currentName.split(" ")
+            setText(if (nameParts.size > 1) nameParts.drop(1).joinToString(" ") else "")
+        }
+
+        val tvEmail = TextView(requireContext()).apply {
+            text = "Email: $currentEmail (read-only)"
+            textSize = 14f
+            setTextColor(android.graphics.Color.parseColor("#8C8C8C"))
+        }
+
+        layout.addView(etFirstName)
+        layout.addView(etSurname)
+        layout.addView(tvEmail)
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Edit Profile")
+            .setView(layout)
+            .setPositiveButton("Save") { _, _ ->
+                val firstName = etFirstName.text.toString().trim()
+                val surname = etSurname.text.toString().trim()
+
+                if (firstName.isEmpty() || surname.isEmpty()) {
+                    android.widget.Toast.makeText(requireContext(), "Please fill in both fields", android.widget.Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                val prefs = requireContext().getSharedPreferences("snokonoko_prefs", 0)
+                val userId = prefs.getInt("user_id", -1)
+
+                lifecycleScope.launch {
+                    viewModel.updateUser(userId, firstName, surname)
+
+                    // Update SharedPreferences
+                    prefs.edit()
+                        .putString("user_name", "$firstName $surname")
+                        .apply()
+
+                    // Update UI
+                    binding.tvUserName.text = "$firstName $surname"
+
+                    // Update MainActivity properties
+                    val activity = requireActivity() as com.snokonoko.app.MainActivity
+                    activity.userName = "$firstName $surname"
+
+                    android.widget.Toast.makeText(requireContext(), "Profile updated", android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     override fun onDestroyView() {
